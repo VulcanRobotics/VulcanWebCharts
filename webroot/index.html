@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Line Chart</title>
+    <script src="Chart.bundle.js"></script>
+    <script src="utils.js"></script>
+    <style>
+    canvas{
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+    </style>
+</head>
+
+<body>
+    <div style="width:75%;">
+        <canvas id="canvas"></canvas>
+    </div>
+    <br>
+    <br>
+    <!-- <button id="randomizeData">Randomize Data</button>
+    <button id="addDataset">Add Dataset</button>
+    <button id="removeDataset">Remove Dataset</button>
+    <button id="addData">Add Data</button>
+    <button id="removeData">Remove Data</button> -->
+    <script>
+    /* var jsonInput = "{\"setpoint\":[0,0,0,0,41,41,41,41,41,41,41,82,82,82,82,82,184,184,184,184,184,307,307,307,307,307,430,430,430,430,430,553,553,553,553,553,676,676,676,676,676,800,800,800,800,800,902,902,902,902,902,957,957,957,957,957,945,945,945,945,945,871,871,871,871,871,762,762,762,762,762,639,639,639,639,639,516,516,516,516,516,393,393,393,393,393,270,270,270,270,270,153,153,153,153,153,63,63,63,63,63,14,14,14,14,14,0,0,0,0,0,0,0],\"velocity\":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,8,17,31,51,73,98,121,145,167,191,214,237,262,286,308,331,352,373,396,419,442,463,486,508,532,556,581,606,630,653,678,700,723,744,763,777,788,792,792,792,792,793,793,793,792,789,785,778,771,762,753,743,735,728,721,714,706,696,682,666,647,622,592,558,523,491,463,437,416,392,368,343,319,295,272,248,224,200,177,154,131,110,89,71,52,35,19,6,-2,-9,-12],\"error\":[18,18,18,18,18,18,18,18,18,41,41,41,41,41,41,41,41,184,184,184,184,184,184,184,184,253,253,253,253,253,253,253,253,312,312,312,312,312,312,312,312,377,377,377,377,377,377,377,377,293,293,293,293,293,293,293,293,167,167,167,167,167,167,167,167,78,78,78,78,78,78,78,78,-103,-103,-103,-103,-103,-103,-103,-103,-273,-273,-273,-273,-273,-273,-273,-273,-167,-167,-167,-167,-167,-167,-167,-167,-184,-184,-184,-184,-184,-184,-184,-184,-57,-57,-57,-57,-57,-57,-57,-57]}";
+    */
+    // $.getJSON("Test.json", function(json) {
+    // console.log(json); // this will show the info it in firebug console
+    // });
+    // // console.log(jsonInput);
+
+    var data;
+    var count;
+    var xAxisLabels = [];
+
+    // console.log(xAxisLabels);
+
+    // console.log(data);
+    // console.log(count);
+
+
+
+    fetch("/webroot/data/talonSRX/TalonSRX1.json").then(function(response){
+      return response.json()
+    }).then(function(json){
+      data = json;
+      count = data.setpoint.length;
+      var setpoints = [];
+      var velocitys = [];
+      var error = [];
+
+      for (i = 1; i <= count; i++){
+        xAxisLabels.push(i*20);
+        setpoints.push({x:data.timeStam})
+      }
+      var config = {
+          type: 'line',
+          data: {
+              labels: xAxisLabels,
+              datasets: [{
+                  label: "Setpoint",
+                  backgroundColor: window.chartColors.red,
+                  borderColor: window.chartColors.red,
+                  data: data.setpoint,
+                  fill: false,
+              }, {
+                  label: "Velocity",
+                  fill: false,
+                  backgroundColor: window.chartColors.blue,
+                  borderColor: window.chartColors.blue,
+                  data: data.velocity,
+              }, {
+                  label: "Error",
+                  fill: false,
+                  backgroundColor: window.chartColors.green,
+                  borderColor: window.chartColors.green,
+                  data: data.error,
+              }]
+          },
+          options: {
+              responsive: true,
+              title:{
+                  display:true,
+                  text:'Chart.js Line Chart'
+              },
+              tooltips: {
+                  mode: 'index',
+                  intersect: false,
+              },
+              hover: {
+                  mode: 'nearest',
+                  intersect: true
+              },
+              scales: {
+                  xAxes: [{
+                      display: true,
+                      scaleLabel: {
+                          display: true,
+                          labelString: 'time(ms)'
+                      }
+                  }],
+                  yAxes: [{
+                      display: true,
+                      scaleLabel: {
+                          display: true,
+                          labelString: 'velocity(Enc Counts/100ms)'
+                      }
+                  }]
+              }
+          }
+      };
+
+      var ctx = document.getElementById("canvas").getContext("2d");
+      myLine = new Chart(ctx, config);
+    });
+    </script>
+<!-- <p>xAxisLegend</p> -->
+</body>
+
+</html>
