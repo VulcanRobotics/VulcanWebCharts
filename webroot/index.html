@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Line Chart</title>
+    <title>Vulcan Web Charts</title>
     <script src="Chart.js"></script>
     <style>
     canvas{
@@ -14,7 +14,18 @@
 </head>
 
 <body>
-    <div style="width:75%;">
+    <div>
+      <div style="float:left;">
+        <img src="img/icon.png" style="width:5%" ></img>
+      </div>
+      <div aline="center">
+        <h1> Vulcan Web Charts </h1>
+      </div>
+    </div>
+    <div id="options" style="width:10%;float:left">
+
+    </div>
+    <div style="width:90%;float:right">
         <canvas id="canvas"></canvas>
     </div>
 
@@ -22,85 +33,109 @@
     var red = "#FF0000"
     var green = "#00FF00"
     var blue = "#0000FF"
+    var chartName = {
+        display:true,
+        text:""
+    };
+    var xAxisLabels = [];
+    var setpoints = [];
+    var velocitys = [];
+    var errors = [];
+    var loopChartConfig = {
+        type: 'line',
+        data: {
+            labels: xAxisLabels,
+            datasets: [{
+                label: "Setpoint",
+                backgroundColor: red,
+                borderColor: red,
+                data: setpoints,
+                fill: false,
+            }, {
+                label: "Velocity",
+                fill: false,
+                backgroundColor: blue,
+                borderColor: blue,
+                data: velocitys,
+            }, {
+                label: "Error",
+                fill: false,
+                backgroundColor: green,
+                borderColor: green,
+                data: errors,
+            }]
+        },
+        options: {
+            responsive: true,
+            title:chartName,
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'milliseconds'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'encoder counts per 100 milliseconds'
+                    }
+                }]
+            }
+        }
+    };
 
-    console.log("Fetching TalonSRX1.json");
-    fetch("/log/talonSRX/TalonSRX1.json",{cache: "no-store"}).then(function(response){
+    loopLine = new Chart(document.getElementById("canvas").getContext("2d"), loopChartConfig);
+
+    console.log("Fetching config");
+    fetch("/webroot/config.json",{cache:"no-store"}).then(function(response){
       return response.json()
-    }).then(function(data){
-      console.log("Sucessfuly fetched TalonSRX1.json, generating chart.");
-      var count = data.setpoint.length;
-      var xAxisLabels = [];
-      var setpoints = [];
-      var velocitys = [];
-      var errors = [];
-
-      for (i = 0; i <= count; i++){
-        xAxisLabels.push(i*20);
-        setpoints.push({x:data.timeStamp[i],y:data.setpoint[i]});
-        velocitys.push({x:data.timeStamp[i],y:data.velocity[i]});
-        errors.push({x:data.timeStamp[i],y:data.error[i]});
+    }).then(function(config){
+      console.log("Configing TalonSRX Options");
+      for(i = 0; i < config.talonSRX.length; i++){
+        var line = "<button type=\"button\" onclick=\"plotLog('talonSRX/" + config.talonSRX[i] + ".json')\">"
+        line += config.talonSRX[i];
+        line += "</button>\n";
+        document.getElementById("options").innerHTML += line;
       }
-      var config = {
-          type: 'line',
-          data: {
-              labels: xAxisLabels,
-              datasets: [{
-                  label: "Setpoint",
-                  backgroundColor: red,
-                  borderColor: red,
-                  data: setpoints,
-                  fill: false,
-              }, {
-                  label: "Velocity",
-                  fill: false,
-                  backgroundColor: blue,
-                  borderColor: blue,
-                  data: velocitys,
-              }, {
-                  label: "Error",
-                  fill: false,
-                  backgroundColor: green,
-                  borderColor: green,
-                  data: errors,
-              }]
-          },
-          options: {
-              responsive: true,
-              title:{
-                  display:true,
-                  text:'TalonSRX1'
-              },
-              tooltips: {
-                  mode: 'index',
-                  intersect: false,
-              },
-              hover: {
-                  mode: 'nearest',
-                  intersect: true
-              },
-              scales: {
-                  xAxes: [{
-                      display: true,
-                      scaleLabel: {
-                          display: true,
-                          labelString: 'milliseconds'
-                      }
-                  }],
-                  yAxes: [{
-                      display: true,
-                      scaleLabel: {
-                          display: true,
-                          labelString: 'encoder counts per 100 milliseconds'
-                      }
-                  }]
-              }
-          }
-      };
-
-      var ctx = document.getElementById("canvas").getContext("2d");
-      myLine = new Chart(ctx, config);
-      console.log("done");
     });
+
+    function plotLog(path){
+      console.log("Fetching " + path);
+      fetch(("../log/" + path),{cache: "no-store"}).then(function(response){
+        return response.json()
+      }).then(function(data){
+        setpoints.length = 0;
+        velocitys.length = 0;
+        errors.length = 0;
+        xAxisLabels.length = 0;
+        console.log("Sucessfuly fetched " + path + ", generating chart.");
+        var nameArr = path.split('/');
+        var name = nameArr[nameArr.length - 1];
+        name = name.substring(0,name.length-5);
+        loopChartConfig.options.title.text = name;
+        var count = data.setpoint.length;
+
+        for (i = 0; i <= count; i++){
+          xAxisLabels.push(i*20);
+          setpoints.push({x:data.timeStamp[i],y:data.setpoint[i]});
+          velocitys.push({x:data.timeStamp[i],y:data.velocity[i]});
+          errors.push({x:data.timeStamp[i],y:data.error[i]});
+        }
+        loopLine.update(loopChartConfig);
+        console.log("done");
+      });
+    }
     </script>
 <!-- <p>xAxisLegend</p> -->
 </body>
