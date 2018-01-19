@@ -33,11 +33,15 @@
     var red = "#FF0000"
     var green = "#00FF00"
     var blue = "#0000FF"
+    var chartName = {
+        display:true,
+        text:"test"
+    };
     var xAxisLabels = [];
     var setpoints = [];
     var velocitys = [];
     var errors = [];
-    var config = {
+    var loopChartConfig = {
         type: 'line',
         data: {
             labels: xAxisLabels,
@@ -63,10 +67,7 @@
         },
         options: {
             responsive: true,
-            title:{
-                display:true,
-                text:'TalonSRX1'
-            },
+            title:chartName,
             tooltips: {
                 mode: 'index',
                 intersect: false,
@@ -94,8 +95,7 @@
         }
     };
 
-    var ctx = document.getElementById("canvas").getContext("2d");
-    myLine = new Chart(ctx, config);
+    loopLine = new Chart(document.getElementById("canvas").getContext("2d"), loopChartConfig);
     plotLog("talonSRX/TalonSRX1.json");
 
     console.log("Fetching config");
@@ -122,6 +122,10 @@
         errors.length = 0;
         xAxisLabels.length = 0;
         console.log("Sucessfuly fetched " + path + ", generating chart.");
+        var nameArr = path.split('/');
+        var name = nameArr[nameArr.length - 1];
+        name = name.substring(0,name.length-5);
+        loopChartConfig.options.title.text = name;
         var count = data.setpoint.length;
 
         for (i = 0; i <= count; i++){
@@ -130,7 +134,7 @@
           velocitys.push({x:data.timeStamp[i],y:data.velocity[i]});
           errors.push({x:data.timeStamp[i],y:data.error[i]});
         }
-        myLine.update();
+        loopLine.update(loopChartConfig);
         console.log("done");
       });
     }
