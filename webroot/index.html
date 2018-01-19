@@ -35,7 +35,7 @@
     var blue = "#0000FF"
     var chartName = {
         display:true,
-        text:"test"
+        text:""
     };
     var xAxisLabels = [];
     var setpoints = [];
@@ -96,14 +96,12 @@
     };
 
     loopLine = new Chart(document.getElementById("canvas").getContext("2d"), loopChartConfig);
-    plotLog("talonSRX/TalonSRX1.json");
 
     console.log("Fetching config");
     fetch("/webroot/config.json",{cache:"no-store"}).then(function(response){
       return response.json()
     }).then(function(config){
       console.log("Configing TalonSRX Options");
-      console.log(" " + config.talonSRX);
       for(i = 0; i < config.talonSRX.length; i++){
         var line = "<button type=\"button\" onclick=\"plotLog('talonSRX/" + config.talonSRX[i] + ".json')\">"
         line += config.talonSRX[i];
@@ -137,10 +135,6 @@
         loopLine.update(loopChartConfig);
         console.log("done");
       });
-    }
-
-    function say(message){
-      alert(message);
     }
     </script>
 <!-- <p>xAxisLegend</p> -->
