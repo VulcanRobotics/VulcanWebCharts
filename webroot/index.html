@@ -32,11 +32,13 @@
       var xAxisLabels = [];
       var setpoints = [];
       var velocitys = [];
-      var error = [];
+      var errors = [];
 
-      for (i = 1; i <= count; i++){
+      for (i = 0; i <= count; i++){
         xAxisLabels.push(i*20);
-        setpoints.push({x:data.timeStam})
+        setpoints.push({x:data.timeStamp[i],y:data.setpoint[i]});
+        velocitys.push({x:data.timeStamp[i],y:data.velocity[i]});
+        errors.push({x:data.timeStamp[i],y:data.error[i]});
       }
       var config = {
           type: 'line',
@@ -46,20 +48,20 @@
                   label: "Setpoint",
                   backgroundColor: red,
                   borderColor: red,
-                  data: data.setpoint,
+                  data: setpoints,
                   fill: false,
               }, {
                   label: "Velocity",
                   fill: false,
                   backgroundColor: blue,
                   borderColor: blue,
-                  data: data.velocity,
+                  data: velocitys,
               }, {
                   label: "Error",
                   fill: false,
                   backgroundColor: green,
                   borderColor: green,
-                  data: data.error,
+                  data: errors,
               }]
           },
           options: {
