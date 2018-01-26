@@ -31,9 +31,10 @@
     </div>
 
     <script>
-    var red = "#FF0000"
-    var green = "#00FF00"
-    var blue = "#66CCFF"
+    var setpointColor = "#FF0000"
+    var velocityColor = "#66CCFF"
+    var errorColor = "#00FF00"
+    var voltageColor = "#8B008B"
     var chartName = {
         display:true,
         text:""
@@ -42,28 +43,39 @@
     var setpoints = [];
     var velocitys = [];
     var errors = [];
+    var voltages = [];
     var loopChartConfig = {
         type: 'line',
         data: {
             labels: xAxisLabels,
             datasets: [{
+                yAxisID: "Velocity",
                 label: "Setpoint",
-                backgroundColor: red,
-                borderColor: red,
+                backgroundColor: setpointColor,
+                borderColor: setpointColor,
                 data: setpoints,
                 fill: false,
             }, {
+                yAxisID: "Velocity",
                 label: "Velocity",
                 fill: false,
-                backgroundColor: blue,
-                borderColor: blue,
+                backgroundColor: velocityColor,
+                borderColor: velocityColor,
                 data: velocitys,
             }, {
+                yAxisID: "Velocity",
                 label: "Error",
                 fill: false,
-                backgroundColor: green,
-                borderColor: green,
+                backgroundColor: errorColor,
+                borderColor: errorColor,
                 data: errors,
+            },{
+                yAxisID: "Voltage",
+                label: "Output Voltage",
+                fill: false,
+                backgroundColor: voltageColor,
+                borderColor: voltageColor,
+                data: voltages,
             }]
         },
         options: {
@@ -87,9 +99,19 @@
                 }],
                 yAxes: [{
                     display: true,
+                    id: "Velocity",
+                    position: "left",
                     scaleLabel: {
                         display: true,
                         labelString: 'encoder counts per 100 milliseconds'
+                    }
+                  },{
+                    display: true,
+                    id: "Voltage",
+                    position: "right",
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Volts'
                     }
                 }]
             }
@@ -132,6 +154,7 @@
           setpoints.push({x:data.timeStamp[i],y:data.setpoint[i]});
           velocitys.push({x:data.timeStamp[i],y:data.velocity[i]});
           errors.push({x:data.timeStamp[i],y:data.error[i]});
+          voltages.push({x:data.timeStamp[i],y:data.vOut[i]});
         }
         loopLine.update(loopChartConfig);
         console.log("done");
