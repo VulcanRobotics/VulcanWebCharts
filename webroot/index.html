@@ -35,15 +35,19 @@
     var velocityColor = "#66CCFF"
     var errorColor = "#00FF00"
     var voltageColor = "#8B008B"
+    var positionColor = "#0000FF"
     var chartName = {
         display:true,
         text:""
     };
+    var config;
+    var modes = {};
     var xAxisLabels = [];
     var setpoints = [];
     var velocitys = [];
     var errors = [];
     var voltages = [];
+    var positions = [];
     var loopChartConfig = {
         type: 'line',
         data: {
@@ -76,6 +80,13 @@
                 backgroundColor: voltageColor,
                 borderColor: voltageColor,
                 data: voltages,
+            },{
+                yAxisID: "Position",
+                label: "Position",
+                fill: false,
+                backgroundColor: positionColor,
+                borderColor: positionColor,
+                data: positions,
             }]
         },
         options: {
@@ -113,7 +124,15 @@
                         display: true,
                         labelString: 'Volts'
                     }
-                }]
+                  },{
+                    display: true,
+                    id: "Position",
+                    position: "right",
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'encoder counts'
+                    }
+                  }]
             }
         }
     };
@@ -123,12 +142,14 @@
     console.log("Fetching config");
     fetch("/webroot/config.json",{cache:"no-store"}).then(function(response){
       return response.json()
-    }).then(function(config){
+    }).then(function(configJ){
       console.log("Configing TalonSRX Options");
+      config = configJ
       for(i = 0; i < config.talonSRX.length; i++){
-        var line = "<button type=\"button\" onclick=\"plotLog('talonSRX/" + config.talonSRX[i] + ".json')\">"
-        line += config.talonSRX[i];
+        var line = "<button type=\"button\" onclick=\"plotLog('talonSRX/" + config.talonSRX[i].name + ".json')\">"
+        line += config.talonSRX[i].name;
         line += "</button>\n";
+        modes[config.talonSRX[i].name] = config.talonSRX[i].mode;
         document.getElementById("options").innerHTML += line;
       }
     });
@@ -142,11 +163,14 @@
         velocitys.length = 0;
         errors.length = 0;
         xAxisLabels.length = 0;
+        voltages.length = 0;
+        positions.length = 0;
         console.log("Sucessfuly fetched " + path + ", generating chart.");
         var nameArr = path.split('/');
         var name = nameArr[nameArr.length - 1];
         name = name.substring(0,name.length-5);
         loopChartConfig.options.title.text = name;
+        mode = modes[name];
         var count = data.setpoint.length;
 
         for (i = 0; i <= count; i++){
@@ -155,6 +179,7 @@
           velocitys.push({x:data.timeStamp[i],y:data.velocity[i]});
           errors.push({x:data.timeStamp[i],y:data.error[i]});
           voltages.push({x:data.timeStamp[i],y:data.vOut[i]});
+          positions.push({x:data.timeStamp[i],y:data.position[i]});
         }
         loopLine.update(loopChartConfig);
         console.log("done");

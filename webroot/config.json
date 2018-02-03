@@ -1,1 +1,1 @@
-{"talonSRX":["TalonSRX1","TalonSRX14"],"dummy":"test"}
+{"talonSRX":[{"name":"TalonSRX1","mode":"velocity"},{"name":"TalonSRX14","mode":"velocity"}]}
