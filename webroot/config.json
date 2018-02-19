@@ -1,1 +1,1 @@
-{"talonSRX":[{"name":"TalonSRX1","mode":"velocity"},{"name":"TalonSRX14","mode":"velocity"}]}
+{"talonSRX":[{"name":"TalonSRX1","mode":"velocity"},{"name":"TalonSRX14","mode":"velocity"},{"name":"TalonSRX3","mode":"position"}]}
